@@ -8,5 +8,4 @@
 (define scribblings '(("scribblings/gsl-integration.scrbl" ())))
 (define pkg-desc "Binding to gnu gsl numerical integration")
 (define pkg-authors '(Petter Pripp))
-;raco pkg install -n gsl-integration
-;raco test -m test.rkt
+

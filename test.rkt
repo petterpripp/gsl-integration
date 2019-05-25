@@ -246,5 +246,5 @@
    (t-romberg 0.0 (/ pi 2))
    (t-romberg (/ pi 2) 0.0))))
 
-   
-(for-each (lambda (x) (run-tests i-tests)) (range 1))
+(when (not (getenv "PLT_PKG_BUILD_SERVICE")) ;Avoid failing test at https://pkgs.racket-lang.org/ because gnu gsl is missing.
+  (for-each (lambda (x) (run-tests i-tests)) (range 1)))
