@@ -109,3 +109,5 @@
  gsl_errno_symbol
  gsl_errno_msg)
  
+; don't run this file for testing:
+(module test racket/base)

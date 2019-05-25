@@ -197,3 +197,5 @@
  romberg)
  
  
+; don't run this file for testing:
+(module test racket/base)

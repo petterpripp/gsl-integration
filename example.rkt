@@ -18,3 +18,5 @@
       (displayln (string-append "actual error    = " (~a (- (second res) expected)))))
     (error "symbol nr = " (first res)))
 
+; don't run this file for testing:
+(module test racket/base)

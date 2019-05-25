@@ -68,3 +68,6 @@
  alloc_double
  alloc_size
  make-double_array)
+
+; don't run this file for testing:
+(module test racket/base)
