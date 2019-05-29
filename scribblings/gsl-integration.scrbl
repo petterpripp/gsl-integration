@@ -1,11 +1,11 @@
 #lang scribble/manual
 @(require (for-label racket))
 
-@title{GNU GSL Numeric Integration }
+@title{GNU GSL Numerical Integration }
 by @author+email[ "Petter Pripp" "petter.pripp@yahoo.com"]
 @defmodule[gsl-integration #:packages ["gsl-integration"]]
 
-Racket library on top of GNU GSL Numeric Integration C functions.
+Interface to GNU GSL Numerical Integration.
 
 Library hides memory allocation and other low level C stuff.
 
