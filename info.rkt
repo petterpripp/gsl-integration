@@ -1,7 +1,6 @@
 #lang info
 
 (define collection "gsl-integration")
-(define version "1.0")
 (define deps '("base"
                "scribble-lib"
                "rackunit-lib"

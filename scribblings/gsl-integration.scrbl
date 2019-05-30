@@ -162,3 +162,11 @@ Romberg integration
               (#:n  n exact-positive-integer? 20)              
               ) (or/c (list/c integer? real? integer?)
                       (list/c integer? symbol? string?))]
+
+@section{Troubleshooting}
+Some linux systems have precompiled package for GNU GSL library. Howeever this package can be of an older version. 
+It is recommended to compile and install GNU GSL library from source.
+Beware that installation directory from source can be different that from precompiled package.
+
+If you get an error that it can not find Romberg, but not error on the other functions: You have and older version of GNU GSL on our system.
+Romberg was added at version 2.5
