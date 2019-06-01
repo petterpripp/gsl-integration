@@ -1,6 +1,7 @@
 #lang scribble/manual
 @(require (for-label racket))
-
+@(require scribble-math)
+@(use-mathjax)
 @title{GNU GSL Numerical Integration }
 by @author+email[ "Petter Pripp" "petter.pripp@yahoo.com"]
 @defmodule[gsl-integration #:packages ["gsl-integration"]]
@@ -67,7 +68,7 @@ Error list: codenr, gsl-symbol, message.
 
 --------
 
-QNG non-adaptive Gauss-Kronrod integration
+
 
 @defproc[(qng (f (-> flonum? flonum? ))
               (a real?)
@@ -75,9 +76,9 @@ QNG non-adaptive Gauss-Kronrod integration
               (#:epsabs epsabs real? 0)
               (#:epsrel epsrel real? 1e-8)
               ) (or/c (list/c integer? real? real? integer?)
-                      (list/c integer? symbol? string?))]
+                      (list/c integer? symbol? string?))]{QNG non-adaptive Gauss-Kronrod integration}
 
-QAG adaptive integration
+
 @defproc[(qag (f (-> flonum? flonum? ))
               (a real?)
               (b real?) 
@@ -86,9 +87,9 @@ QAG adaptive integration
               (#:limit  limit  exact-positive-integer? 1000)
               (#:key    key    exact-positive-integer? 2)
               ) (or/c (list/c integer? real? real?) 
-                      (list/c integer? symbol? string?))]
+                      (list/c integer? symbol? string?))]{QAG adaptive integration}
 
-QAGS adaptive integration with singularities
+
 @defproc[(qags (f (-> flonum? flonum? ))
               (a real?)
               (b real?) 
@@ -96,24 +97,25 @@ QAGS adaptive integration with singularities
               (#:epsrel epsrel real? 1e-8)
               (#:limit  limit  exact-positive-integer? 1000)              
               ) (or/c (list/c integer? real? real?) 
-                      (list/c integer? symbol? string?))]
+                      (list/c integer? symbol? string?))]{QAGS adaptive integration with singularities}
 
-QAGP adaptive integration with known singular points
+
 @defproc[(qagp (f (-> flonum? flonum? ))
               (pts (listof real?))              
               (#:epsabs epsabs real? 0)
               (#:epsrel epsrel real? 1e-8)
               (#:limit  limit  exact-positive-integer? 1000)              
               ) (or/c (list/c integer? real? real?) 
-                      (list/c integer? symbol? string?))]
+                      (list/c integer? symbol? string?))]{QAGP adaptive integration with known singular points}
 
-QAGI adaptive integration on infinite intervals
+
 @defproc[(qagi (f (-> flonum? flonum? ))
               (#:epsabs epsabs real? 0)
               (#:epsrel epsrel real? 1e-8)
               (#:limit  limit  exact-positive-integer? 1000)              
               ) (or/c (list/c integer? real? real?) 
-                      (list/c integer? symbol? string?))]
+                      (list/c integer? symbol? string?))]{
+ QAGI adaptive integration on infinite interval @($"(-\\infty,+\\infty)") }
 
 
 @defproc[(qagiu (f (-> flonum? flonum? ))
@@ -122,7 +124,8 @@ QAGI adaptive integration on infinite intervals
                 (#:epsrel epsrel real? 1e-8)
                 (#:limit  limit  exact-positive-integer? 1000)              
                 ) (or/c (list/c integer? real? real?) 
-                        (list/c integer? symbol? string?))]
+                        (list/c integer? symbol? string?))]{
+ QAGIU adaptive integration on semi-infinite interval @($"(a,+\\infty)") }                                                     
 
 @defproc[(qagil (f (-> flonum? flonum? ))
                 (b real?)              
@@ -130,9 +133,10 @@ QAGI adaptive integration on infinite intervals
                 (#:epsrel epsrel real? 1e-8)
                 (#:limit  limit  exact-positive-integer? 1000)              
                 ) (or/c (list/c integer? real? real?) 
-                        (list/c integer? symbol? string?))]
+                        (list/c integer? symbol? string?))]{
+ QAGIL adaptive integration on semi-infinite interval @($"(-\\infty,b)") }                                                     
 
-QAWC adaptive integration for Cauchy principal values
+
 @defproc[(qawc (f (-> flonum? flonum? ))
               (a real?)
               (b real?)
@@ -141,9 +145,9 @@ QAWC adaptive integration for Cauchy principal values
               (#:epsrel epsrel real? 1e-8)
               (#:limit  limit  exact-positive-integer? 1000)              
               ) (or/c (list/c integer? real? real?) 
-                      (list/c integer? symbol? string?))]
+                      (list/c integer? symbol? string?))]{QAWC adaptive integration for Cauchy principal values}
 
-CQUAD doubly-adaptive integration
+
 @defproc[(cquad (f (-> flonum? flonum? ))
               (a real?)
               (b real?) 
@@ -151,9 +155,9 @@ CQUAD doubly-adaptive integration
               (#:epsrel epsrel real? 1e-8)
               (#:limit  limit  exact-positive-integer? 1000)              
               ) (or/c (list/c integer? real? real? integer?)
-                      (list/c integer? symbol? string?))]
+                      (list/c integer? symbol? string?))]{CQUAD doubly-adaptive integration}
 
-Romberg integration
+
 @defproc[(romberg (f (-> flonum? flonum? ))
               (a real?)
               (b real?) 
@@ -161,7 +165,7 @@ Romberg integration
               (#:epsrel epsrel real? 1e-8)
               (#:n  n exact-positive-integer? 20)              
               ) (or/c (list/c integer? real? integer?)
-                      (list/c integer? symbol? string?))]
+                      (list/c integer? symbol? string?))]{Romberg integration}
 
 @section{Troubleshooting}
 Some linux systems have precompiled package for GNU GSL library. Howeever this package can be of an older version. 
