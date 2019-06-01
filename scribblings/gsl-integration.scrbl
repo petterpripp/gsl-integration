@@ -62,11 +62,9 @@ The functions will always return a list.
 
 First element is status code. Success when code = 0, otherwise error.
 
-Success list: 0, result. Thereafter one or both (see GNU GSL documentation):  abserr , neveals.
+@(bold "Success list:") 0, result. Thereafter one or both (see GNU GSL documentation):  abserr , neveals.
 
-Error list: codenr, gsl-symbol, message.
-
---------
+@(bold "Error list:") codenr, gsl-symbol, message.
 
 
 
