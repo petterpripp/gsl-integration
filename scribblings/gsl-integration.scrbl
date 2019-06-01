@@ -1,4 +1,6 @@
 #lang scribble/manual
+@; don't run this file for testing:
+@(module test racket/base)
 @(require (for-label racket))
 @(require scribble-math)
 @(use-mathjax)
@@ -62,7 +64,7 @@ The functions will always return a list.
 
 First element is status code. Success when code = 0, otherwise error.
 
-@(bold "Success list:") 0, result. Thereafter one or both (see GNU GSL documentation):  abserr , neveals.
+@(bold "Success list:") 0, result. Thereafter one or both (see GNU GSL documentation):  abserr , neveal.
 
 @(bold "Error list:") codenr, gsl-symbol, message.
 
@@ -74,7 +76,13 @@ First element is status code. Success when code = 0, otherwise error.
               (#:epsabs epsabs real? 0)
               (#:epsrel epsrel real? 1e-8)
               ) (or/c (list/c integer? real? real? integer?)
-                      (list/c integer? symbol? string?))]{QNG non-adaptive Gauss-Kronrod integration}
+                      (list/c integer? symbol? string?))]{
+ The QNG algorithm is a non-adaptive procedure which uses fixed
+ Gauss-Kronrod-Patterson abscissae to sample the integrand at a maximum of 87 points.
+ It is provided for fast integration of smooth functions.
+
+ When success, returns: @racketblock[ (0 result abserr neval)]
+ When error, returns: @racketblock[ (codenr gsl-symbol message)]}
 
 
 @defproc[(qag (f (-> flonum? flonum? ))
@@ -85,7 +93,11 @@ First element is status code. Success when code = 0, otherwise error.
               (#:limit  limit  exact-positive-integer? 1000)
               (#:key    key    exact-positive-integer? 2)
               ) (or/c (list/c integer? real? real?) 
-                      (list/c integer? symbol? string?))]{QAG adaptive integration}
+                      (list/c integer? symbol? string?))]{
+ The QAG algorithm is a simple adaptive integration procedure.
+ The integration region is divided into subintervals,
+ and on each iteration the subinterval with the largest estimated error is bisected.
+ This reduces the overall error rapidly, as the subintervals become concentrated around local difficulties in the integrand.}
 
 
 @defproc[(qags (f (-> flonum? flonum? ))
