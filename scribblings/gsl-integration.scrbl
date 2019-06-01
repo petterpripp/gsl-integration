@@ -165,7 +165,11 @@ First element is status code. Success when code = 0, otherwise error.
               (#:epsrel epsrel real? 1e-8)
               (#:limit  limit  exact-positive-integer? 1000)              
               ) (or/c (list/c integer? real? real? integer?)
-                      (list/c integer? symbol? string?))]{CQUAD doubly-adaptive integration}
+                      (list/c integer? symbol? string?))]{
+ CQUAD is a doubly-adaptive general-purpose quadrature routine which can handle most types of singularities,
+ non-numerical function values such as Inf or NaN, as well as some divergent integrals.
+ It generally requires more function evaluations than the integration routines in QUADPACK,
+ yet fails less often for difficult integrands.}
 
 
 @defproc[(romberg (f (-> flonum? flonum? ))
