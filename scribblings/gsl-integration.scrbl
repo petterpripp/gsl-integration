@@ -188,3 +188,11 @@ Beware that installation directory from source can be different that from precom
 
 If you get an error that it can not find Romberg, but not error on the other functions: You have and older version of GNU GSL on our system.
 Romberg was added at version 2.5
+
+If you get error:  ffi-lib: couldn't open "libgslcblas.so" (libgslcblas.so: cannot open shared object file: No such file or directory)
+
+Solution: Edit ~/.bashrc
+
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
+export LD_LIBRARY_PATH
