@@ -1,0 +1,7 @@
+.*
+!.gitignore
+*~
+compiled/*
+scribblings/*
+!scribblings/gsl-integration.scrbl
+doc/*
