@@ -38,6 +38,23 @@
       (gc-free cb-f result abserr nevals)
       rl)))
 
+; Same as qng, but raise error
+(define/contract (qng-r f a b #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] )
+  (->* ((-> flonum? flonum? ) real? real?) (#:epsabs real?  #:epsrel real? ) (list/c integer? real? real? integer?))
+  (define res (qng f a b #:epsabs epsabs  #:epsrel epsrel))
+  (if (= (first res) 0)
+      res
+      (raise-arguments-error 'qng-r
+                             (third res)                             
+                             "gsl_errno_code" (first res)
+                             "gsl_errno_symbol" (second res)
+                             "a" a
+                             "b" b
+                             "epsabs" epsabs
+                             "epsrel" epsrel)))
+                             
+
+
 ;(gsl gsl_integration_qag (_fun _gsl_function-pointer _double _double _double _double _size _int _gsl_integration_workspace-pointer _double-pointer _double-pointer -> _int))
 (define/contract (qag f a b #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] #:limit [limit 1000] #:key [key 2])
   (->* ((-> flonum? flonum? ) real? real?) (#:epsabs real?  #:epsrel real? #:limit exact-positive-integer? #:key exact-positive-integer?) (or/c (list/c integer? real? real?) err?))
@@ -186,6 +203,7 @@
 
 (provide  
  qng
+ qng-r 
  qag
  qags
  qagp

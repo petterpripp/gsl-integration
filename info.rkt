@@ -7,3 +7,4 @@
 (define pkg-desc "Binding to gnu gsl numerical integration")
 (define pkg-authors '(Petter Pripp))
 (define test-omit-paths (if (getenv "PLT_PKG_BUILD_SERVICE") 'all '()))
+(define license 'GPL-3.0-or-later)

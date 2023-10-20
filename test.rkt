@@ -5,7 +5,7 @@
 
 (require rackunit
          rackunit/text-ui)
-         ;infix)
+         
 
 
 (define (f1 x )
@@ -31,36 +31,6 @@
 (define (f-example x)
   (/ (log x) (sqrt x)))
   
-
-
-#| infix example:
-
-(define (pow x y)
-  (expt x y))
-
-(define (f1 x )  
-    ($ "pow[x,2.6] * log[1/x]"))
-
-(define (myfn1 x )  
-    ($ "exp[-x - x*x]"))
-
-(define (myfn2 x )  
-    ($ "exp[x]"))
-
-(define (f454 x)
-  (let* ([x2  (* x x)]
-         [x3  (* x x2)])
-  ($ "x3 * log[abs[(x2 - 1.0) * (x2 - 2.0)]]")))
-
-(define (f455 x )  
-    ($ "log[x] / (1.0 + 100.0 * x * x)"))
-
-(define (f459 x) 
-  ($ "1.0 / (5.0 * x * x * x + 6.0)"))
-
-(define (f-example x)
-  ($ "log[x] / sqrt[x]")) |#
-
 
 (define (t-qng-etol a b)  
   (let ([rl (qng f-example a b #:epsabs 1e-1 #:epsrel 0.0 )])
@@ -180,8 +150,8 @@
   (let ([exp_result 1.0]             
         [rl (romberg sin a b #:epsrel 1e-10)])
     (if (= (first rl) 0)        
-          (check-within (second rl) (if (< a b) exp_result (- exp_result)) 1e-15 "result")          
-          (error "romberg status =" (~a rl)))))
+        (check-within (second rl) (if (< a b) exp_result (- exp_result)) 1e-15 "result")          
+        (error "romberg status =" (~a rl)))))
 
 
 (define i-tests
@@ -189,62 +159,75 @@
    "Integral"
 
    (test-case
-   "QNG GSL_ETOL"
-   (t-qng-etol 0.0 1.0 ))      
+    "QNG GSL_ETOL"
+    (t-qng-etol 0.0 1.0 ))      
    
    (test-case
-   "QNG"
-   (t-qng 0.0 1.0 )
-   (t-qng 1.0 0.0))
+    "QNG"
+    (t-qng 0.0 1.0 )
+    (t-qng 1.0 0.0))
 
    (test-case
-   "QNG lambda"
-   (t-qng-lambda 0.0 1.0 )
-   (t-qng-lambda 1.0 0.0))
+    "QNG lambda"
+    (t-qng-lambda 0.0 1.0 )
+    (t-qng-lambda 1.0 0.0))
+
+   (test-case
+    "qng = qng-r"
+    (check-equal?
+     (qng   f1 0 1 #:epsabs 1e-1 #:epsrel 0.0)
+     (qng-r f1 0 1 #:epsabs 1e-1 #:epsrel 0.0)))
+
+   (test-case
+    "qng-r raise error"
+    (check-exn     
+     (regexp "qng-r: failed to reach the specified tolerance\n  gsl_errno_code: 14\n  gsl_errno_symbol: 'GSL_ETOL\n  a: 0\n  b: 1\n  epsabs: 0.1\n  epsrel: 0.0")
+     (λ () (qng-r f-example 0 1 #:epsabs 1e-1 #:epsrel 0.0 ))))
+   
 
    (test-case
     "QAG GSL_EBADTOL"
     (t-qag-ebadtol 0 1))
    
    (test-case
-   "QAG"
-   (t-qag 0.0 1.0 )
-   (t-qag 1.0 0.0))
+    "QAG"
+    (t-qag 0.0 1.0 )
+    (t-qag 1.0 0.0))
    
    (test-case
-   "Test the adaptive integrator with extrapolation QAGS"
-   (t-qags 0.0 1.0 )
-   (t-qags 1.0 0.0))
+    "Test the adaptive integrator with extrapolation QAGS"
+    (t-qags 0.0 1.0 )
+    (t-qags 1.0 0.0))
 
    (test-case
-   "QAGP"
-   (t-qagp (list 0.0 1.0 (sqrt 2.0) 3.0)))
+    "QAGP"
+    (t-qagp (list 0.0 1.0 (sqrt 2.0) 3.0)))
 
    (test-case
-   "QAGI"
-   (t-qagi ))
+    "QAGI"
+    (t-qagi ))
 
    (test-case
-   "QAGIU"
-   (t-qagiu 0.0 ))
+    "QAGIU"
+    (t-qagiu 0.0 ))
 
    (test-case
-   "Test infinite range integral myfn2 using an absolute error bound"   
-   (t-qagil 1.0 ))        
+    "Test infinite range integral myfn2 using an absolute error bound"   
+    (t-qagil 1.0 ))        
 
-  (test-case "Test cauchy integration using a relative error bound"
-    (t-qawc -1.0  5.0 0)
-    (t-qawc 5.0  -1.0 0))
-
-   (test-case
-   "Test the adaptive integrator with extrapolation CQUAD"
-   (t-cquad 0.0 1.0 )
-   (t-cquad 1.0 0.0))
+   (test-case "Test cauchy integration using a relative error bound"
+              (t-qawc -1.0  5.0 0)
+              (t-qawc 5.0  -1.0 0))
 
    (test-case
-   "Test Romberg integral"
-   (t-romberg 0.0 (/ pi 2))
-   (t-romberg (/ pi 2) 0.0))))
+    "Test the adaptive integrator with extrapolation CQUAD"
+    (t-cquad 0.0 1.0 )
+    (t-cquad 1.0 0.0))
+
+   (test-case
+    "Test Romberg integral"
+    (t-romberg 0.0 (/ pi 2))
+    (t-romberg (/ pi 2) 0.0))))
 
 
 ; failing test at https://pkgs.racket-lang.org/ because gnu gsl is missing.

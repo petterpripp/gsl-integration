@@ -85,6 +85,16 @@ First element is status code. Success when code = 0, otherwise error.
  When error, returns: @racketblock[ (codenr gsl-symbol message)]}
 
 
+@defproc[(qng-r (f (-> flonum? flonum? ))
+              (a real?)
+              (b real?) 
+              (#:epsabs epsabs real? 0)
+              (#:epsrel epsrel real? 1e-8)
+              ) (list/c integer? real? real? integer?)]{
+ Same as qng, but raises an exception when error}
+
+ 
+
 @defproc[(qag (f (-> flonum? flonum? ))
               (a real?)
               (b real?) 
