@@ -6,7 +6,9 @@
          
         
 (begin-for-syntax
-  (require racket/syntax syntax/parse))
+    (require racket/syntax syntax/parse))
+
+
 
 (define (gc-free . args)
   (map (lambda (arg)
@@ -22,19 +24,46 @@
 
 (define err? (list/c integer? symbol? string?))
 
+
+(define-syntax (init-no-raise stx)
+  (syntax-parse stx 
+    [(_ funksjon:id)     
+     (with-syntax ([f-no-raise (format-id #'funksjon "f-no-raise")]
+                   [f-errmsg (format-id #'funksjon "f-errmsg")])
+     #'(begin
+         (define f-errmsg "")
+         (define (f-no-raise funksjon)
+      (λ (x)
+        (with-handlers ([exn:fail? (lambda (e)
+                                     (begin
+                                       (if (= (string-length f-errmsg) 0)
+                                           (set! f-errmsg (string-append f-errmsg " f-errmsg = " (exn-message e) " x = " (~a x)))
+                                           '())
+                                       +nan.0))])        
+          (if (= (string-length f-errmsg) 0)
+              (funksjon x)
+              +nan.0))))))]))
+
+
 ;(gsl gsl_integration_qng (_fun _gsl_function-pointer _double _double _double _double _double-pointer _double-pointer _size-pointer -> _int))
 (define/contract (qng f a b #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] )
   (->* ((-> flonum? flonum? ) real? real?) (#:epsabs real?  #:epsrel real? ) (or/c (list/c integer? real? real? integer?) err?))
-  (let ([cb-f (gsl-callback-alloc f)]
+  (init-no-raise f)
+  (let ([cb-f (gsl-callback-alloc (f-no-raise f))]
         [result (alloc_double)]    
         [abserr (alloc_double)]
         [nevals (alloc_size)])
     (begin     
       (define status (gsl_integration_qng cb-f (exact->inexact a) (exact->inexact b) (exact->inexact epsabs) (exact->inexact epsrel) result abserr nevals ))
       (define rl
-        (if (= status 0) 
-            (list status (ptr-ref result _double) (ptr-ref abserr _double) (ptr-ref nevals _size))
-            (err status)))
+        (cond
+          [(and (= status 0) (= (string-length f-errmsg) 0))
+           (list status (ptr-ref result _double) (ptr-ref abserr _double) (ptr-ref nevals _size))]
+          [(and (= status 0) ((string-length f-errmsg) . > . 0))
+           (list 1000 'f-errmsg f-errmsg)]
+          [else
+           (let ([e (err status)])
+             (list (first e) (second e)  (string-append (third e) f-errmsg)))]))
       (gc-free cb-f result abserr nevals)
       rl)))
 

@@ -184,7 +184,13 @@
      (regexp "qng-r: failed to reach the specified tolerance\n  gsl_errno_code: 14\n  gsl_errno_symbol: 'GSL_ETOL\n  a: 0\n  b: 1\n  epsabs: 0.1\n  epsrel: 0.0")
      (λ () (qng-r f-example 0 1 #:epsabs 1e-1 #:epsrel 0.0 ))))
    
+   (test-case
+    "qng-r division by zero"
+    (check-exn     
+     (regexp "qng-r: failed to reach the specified tolerance f-errmsg = /: division by zero x = 0.0")
+     (λ () (qng-r (λ (x) (if (positive? x) x (/ 1 0))) -1 1 ))))
 
+   
    (test-case
     "QAG GSL_EBADTOL"
     (t-qag-ebadtol 0 1))
