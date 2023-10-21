@@ -40,10 +40,10 @@
 
 ; Same as qng, but raise error
 (define/contract (qng-r f a b #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] )
-  (->* ((-> flonum? flonum? ) real? real?) (#:epsabs real?  #:epsrel real? ) (list/c integer? real? real? integer?))
+  (->* ((-> flonum? flonum? ) real? real?) (#:epsabs real?  #:epsrel real? ) (list/c real? real? integer?))
   (define res (qng f a b #:epsabs epsabs  #:epsrel epsrel))
   (if (= (first res) 0)
-      res
+      (rest res)
       (raise-arguments-error 'qng-r
                              (third res)                             
                              "gsl_errno_code" (first res)

@@ -91,7 +91,10 @@ First element is status code. Success when code = 0, otherwise error.
               (#:epsabs epsabs real? 0)
               (#:epsrel epsrel real? 1e-8)
               ) (list/c integer? real? real? integer?)]{
- Same as qng, but raises an exception when error}
+ Same as qng, but raises an exception when error.
+ 
+ When success, returns: @racketblock[ (result abserr neval)]
+}
 
  
 

@@ -175,7 +175,7 @@
    (test-case
     "qng = qng-r"
     (check-equal?
-     (qng   f1 0 1 #:epsabs 1e-1 #:epsrel 0.0)
+     (rest (qng f1 0 1 #:epsabs 1e-1 #:epsrel 0.0))
      (qng-r f1 0 1 #:epsabs 1e-1 #:epsrel 0.0)))
 
    (test-case
