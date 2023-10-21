@@ -6,8 +6,7 @@
          
         
 (begin-for-syntax
-    (require racket/syntax syntax/parse))
-
+  (require racket/syntax syntax/parse))
 
 
 (define (gc-free . args)
@@ -24,48 +23,99 @@
 
 (define err? (list/c integer? symbol? string?))
 
-
-(define-syntax (init-no-raise stx)
+(define-syntax (call-no-raise stx)
   (syntax-parse stx 
-    [(_ funksjon:id)     
-     (with-syntax ([f-no-raise (format-id #'funksjon "f-no-raise")]
-                   [f-errmsg (format-id #'funksjon "f-errmsg")])
+    [(_ (gsl_f:id funksjon:id args ...) (ok ...) (free ...))     
+     ;#:with f-no-raise (format-id #'funksjon "f-no-raise")
+     ;#:with f-errmsg (format-id #'funksjon "f-errmsg")
+     ;#:with cb-f (format-id #'funksjon "cb-f")
+     ;#:with status (format-id #'funksjon "status")
      #'(begin
          (define f-errmsg "")
          (define (f-no-raise funksjon)
-      (λ (x)
-        (with-handlers ([exn:fail? (lambda (e)
-                                     (begin
-                                       (if (= (string-length f-errmsg) 0)
-                                           (set! f-errmsg (string-append f-errmsg " f-errmsg = " (exn-message e) " x = " (~a x)))
-                                           '())
-                                       +nan.0))])        
-          (if (= (string-length f-errmsg) 0)
-              (funksjon x)
-              +nan.0))))))]))
+           (λ (x)
+             (with-handlers ([exn:fail? (lambda (e)
+                                          (begin
+                                            (if (= (string-length f-errmsg) 0)
+                                                (set! f-errmsg (string-append f-errmsg " f-errmsg = " (exn-message e) " x = " (~a x)))
+                                                '())
+                                            +nan.0))])        
+               (if (= (string-length f-errmsg) 0)
+                   (funksjon x)
+                   +nan.0))))
+         (define cb-f (gsl-callback-alloc (f-no-raise funksjon)))
+         (define status (gsl_f cb-f  args ...))
+         (define rl
+          (cond
+            [(and (= status 0) (= (string-length f-errmsg) 0))
+             (list status ok ...)]
+            [(and (= status 0) ((string-length f-errmsg) . > . 0))
+             (list 1000 'f-errmsg f-errmsg)]
+            [else
+             (let ([e (err status)])
+               (list (first e) (second e)  (string-append (third e) f-errmsg)))]))
+        (gc-free cb-f free ...)
+        rl)]))
+
+         
+
+
+#;(define-syntax (return-no-raise stx)
+  (syntax-parse stx 
+    [(_ function:id status:id (ok ...) (free ...) f-errmsg)    
+    #'(begin
+        (define rl
+          (cond
+            [(and (= status 0) (= (string-length f-errmsg) 0))
+             (list status ok ...)]
+            [(and (= status 0) ((string-length f-errmsg) . > . 0))
+             (list 1000 'f-errmsg f-errmsg)]
+            [else
+             (let ([e (err status)])
+               (list (first e) (second e)  (string-append (third e) f-errmsg)))]))
+        (gc-free function free ...)
+        rl)]))
+ 
 
 
 ;(gsl gsl_integration_qng (_fun _gsl_function-pointer _double _double _double _double _double-pointer _double-pointer _size-pointer -> _int))
 (define/contract (qng f a b #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] )
   (->* ((-> flonum? flonum? ) real? real?) (#:epsabs real?  #:epsrel real? ) (or/c (list/c integer? real? real? integer?) err?))
-  (init-no-raise f)
-  (let ([cb-f (gsl-callback-alloc (f-no-raise f))]
-        [result (alloc_double)]    
-        [abserr (alloc_double)]
-        [nevals (alloc_size)])
-    (begin     
-      (define status (gsl_integration_qng cb-f (exact->inexact a) (exact->inexact b) (exact->inexact epsabs) (exact->inexact epsrel) result abserr nevals ))
-      (define rl
-        (cond
-          [(and (= status 0) (= (string-length f-errmsg) 0))
-           (list status (ptr-ref result _double) (ptr-ref abserr _double) (ptr-ref nevals _size))]
-          [(and (= status 0) ((string-length f-errmsg) . > . 0))
-           (list 1000 'f-errmsg f-errmsg)]
-          [else
-           (let ([e (err status)])
-             (list (first e) (second e)  (string-append (third e) f-errmsg)))]))
-      (gc-free cb-f result abserr nevals)
-      rl)))
+  (define result (alloc_double))
+  (define abserr (alloc_double))
+  (define nevals (alloc_size))
+
+  
+  ;(let (;[cb-f (gsl-callback-alloc (f-no-raise f))]
+  ;      [result (alloc_double)]    
+  ;      [abserr (alloc_double)]
+  ;      [nevals (alloc_size)])
+  (call-no-raise
+   (gsl_integration_qng f (exact->inexact a) (exact->inexact b) (exact->inexact epsabs) (exact->inexact epsrel) result abserr nevals )
+   ((ptr-ref result _double) (ptr-ref abserr _double) (ptr-ref nevals _size))
+   (result abserr nevals)))
+   
+   
+  ;(define status (gsl_integration_qng cb-f (exact->inexact a) (exact->inexact b) (exact->inexact epsabs) (exact->inexact epsrel) result abserr nevals ))
+ #; (return-no-raise cb-f
+                   status
+                   ((ptr-ref result _double) (ptr-ref abserr _double) (ptr-ref nevals _size))
+                   (result abserr nevals)
+                   f-errmsg)
+                   
+#|  
+  (define rl
+    (cond
+      [(and (= status 0) (= (string-length f-errmsg) 0))
+       (list status (ptr-ref result _double) (ptr-ref abserr _double) (ptr-ref nevals _size))]
+      [(and (= status 0) ((string-length f-errmsg) . > . 0))
+       (list 1000 'f-errmsg f-errmsg)]
+      [else
+       (let ([e (err status)])
+         (list (first e) (second e)  (string-append (third e) f-errmsg)))]))
+  (gc-free cb-f result abserr nevals)
+  rl)
+|#
 
 ; Same as qng, but raise error
 (define/contract (qng-r f a b #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] )
