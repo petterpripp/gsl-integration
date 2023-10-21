@@ -13,7 +13,6 @@ Interface to GNU GSL Numerical Integration.
 Library hides memory allocation and other low level C stuff.
 
 GNU GSL has to be installed separately.
-Tested for version 2.5.
 
 Naming of functions and keywords follow GNU GSL documentation
 @url{https://www.gnu.org/software/gsl/doc/html/integration.html}
@@ -53,9 +52,6 @@ The source code is distributed under the GNU General Public License.
 )
 
 For more examples look at test.rkt source file.
-
-Tip: When working with math formulas it is recommended to use a infix library, for better readability.
-For example: @url{https://pkgs.racket-lang.org/package/infix}
 
 
 @section{Reference}
@@ -147,6 +143,19 @@ QAGS adaptive integration with singularities
 The presence of an integrable singularity in the integration region causes an adaptive routine to concentrate new subintervals around the singularity.
 As the subintervals decrease in size the successive approximations to the integral converge in a limiting fashion.
 This approach to the limit can be accelerated using an extrapolation procedure. The QAGS algorithm combines adaptive bisection with the Wynn epsilon-algorithm to speed up the integration of many types of integrable singularities.
+}
+
+
+@defproc[(qags-r (f (-> flonum? flonum? ))
+              (a real?)
+              (b real?) 
+              (#:epsabs epsabs real? 0)
+              (#:epsrel epsrel real? 1e-8)
+              (#:limit  limit  exact-positive-integer? 1000)              
+              ) (list/c real? real?)]{
+ Same as qags, but raises an exception when error.
+ 
+ When success, returns: @racketblock[ (result abserr)]
 }
 
 

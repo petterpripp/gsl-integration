@@ -213,6 +213,13 @@
     (t-qags 1.0 0.0))
 
    (test-case
+    "qags = qags-r"
+    (check-equal?
+     (rest (qags f1 0 1 #:epsrel 1e-10 ))
+     (qags-r f1 0 1 #:epsrel 1e-10 )))
+   
+
+   (test-case
     "QAGP"
     (t-qagp (list 0.0 1.0 (sqrt 2.0) 3.0)))
 

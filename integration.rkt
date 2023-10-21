@@ -59,25 +59,6 @@
 
          
 
-
-#;(define-syntax (return-no-raise stx)
-  (syntax-parse stx 
-    [(_ function:id status:id (ok ...) (free ...) f-errmsg)    
-    #'(begin
-        (define rl
-          (cond
-            [(and (= status 0) (= (string-length f-errmsg) 0))
-             (list status ok ...)]
-            [(and (= status 0) ((string-length f-errmsg) . > . 0))
-             (list 1000 'f-errmsg f-errmsg)]
-            [else
-             (let ([e (err status)])
-               (list (first e) (second e)  (string-append (third e) f-errmsg)))]))
-        (gc-free function free ...)
-        rl)]))
- 
-
-
 ;(gsl gsl_integration_qng (_fun _gsl_function-pointer _double _double _double _double _double-pointer _double-pointer _size-pointer -> _int))
 (define/contract (qng f a b #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] )
   (->* ((-> flonum? flonum? ) real? real?) (#:epsabs real?  #:epsrel real? ) (or/c (list/c integer? real? real? integer?) err?))
@@ -143,18 +124,32 @@
 ;(gsl gsl_integration_qags (_fun _gsl_function-pointer _double _double _double _double _size _gsl_integration_workspace-pointer _double-pointer _double-pointer -> _int))
 (define/contract (qags f a b #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] #:limit [limit 1000])
   (->* ((-> flonum? flonum? ) real? real?) (#:epsabs real?  #:epsrel real? #:limit exact-positive-integer? ) (or/c (list/c integer? real? real?) err?))
-  (let ([cb-f (gsl-callback-alloc f)]
-        [w (gsl_integration_workspace_alloc limit)]
-        [result (alloc_double)]    
-        [abserr (alloc_double)])        
-    (begin     
-      (define status (gsl_integration_qags cb-f (exact->inexact a) (exact->inexact b) (exact->inexact epsabs) (exact->inexact epsrel) limit w result abserr))
-      (define rl
-        (if (= status 0) 
-            (list status (ptr-ref result _double) (ptr-ref abserr _double))
-            (err status)))
-      (gc-free cb-f w result abserr)      
-      rl)))
+    (define w (gsl_integration_workspace_alloc limit))
+    (define result (alloc_double))
+    (define abserr (alloc_double))
+    (call-no-raise
+     (gsl_integration_qags f (exact->inexact a) (exact->inexact b) (exact->inexact epsabs) (exact->inexact epsrel) limit w result abserr)
+     ((ptr-ref result _double) (ptr-ref abserr _double))
+     (w result abserr)))
+
+; Same as qags, but raise error
+(define/contract (qags-r f a b #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] #:limit [limit 1000])
+  (->* ((-> flonum? flonum? ) real? real?) (#:epsabs real?  #:epsrel real? #:limit exact-positive-integer?) (list/c real? real?))
+  (define res (qags f a b #:epsabs epsabs  #:epsrel epsrel #:limit limit))
+  (if (= (first res) 0)
+      (rest res)
+      (raise-arguments-error 'qags-r
+                             (third res)                             
+                             "gsl_errno_code" (first res)
+                             "gsl_errno_symbol" (second res)
+                             "a" a
+                             "b" b
+                             "epsabs" epsabs
+                             "epsrel" epsrel
+                             "limit" limit)))
+                             
+
+
 
 ;(gsl gsl_integration_qagp (_fun _gsl_function-pointer _double-pointer _size _double _double _size _gsl_integration_workspace-pointer _double-pointer _double-pointer -> _int))
 (define/contract (qagp f pts #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] #:limit [limit 1000] )
@@ -276,6 +271,7 @@
  qag
  qag-r
  qags
+ qags-r
  qagp
  qagi
  qagiu
