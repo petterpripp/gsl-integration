@@ -201,6 +201,13 @@
     (t-qag 1.0 0.0))
    
    (test-case
+    "qag = qag-r"
+    (check-equal?
+     (rest (qag f1 0 1 #:epsrel 1e-10 #:key 1))
+     (qag-r f1 0 1 #:epsrel 1e-10 #:key 1)))
+
+   
+   (test-case
     "Test the adaptive integrator with extrapolation QAGS"
     (t-qags 0.0 1.0 )
     (t-qags 1.0 0.0))

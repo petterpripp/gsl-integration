@@ -90,7 +90,7 @@ First element is status code. Success when code = 0, otherwise error.
               (b real?) 
               (#:epsabs epsabs real? 0)
               (#:epsrel epsrel real? 1e-8)
-              ) (list/c integer? real? real? integer?)]{
+              ) (list/c real? real? integer?)]{
  Same as qng, but raises an exception when error.
  
  When success, returns: @racketblock[ (result abserr neval)]
@@ -110,7 +110,28 @@ First element is status code. Success when code = 0, otherwise error.
  The QAG algorithm is a simple adaptive integration procedure.
  The integration region is divided into subintervals,
  and on each iteration the subinterval with the largest estimated error is bisected.
- This reduces the overall error rapidly, as the subintervals become concentrated around local difficulties in the integrand.}
+ This reduces the overall error rapidly, as the subintervals become concentrated around local difficulties in the integrand.
+
+ When success, returns: @racketblock[ (0 result abserr)]
+ When error, returns: @racketblock[ (codenr gsl-symbol message)]}
+
+
+
+@defproc[(qag-r (f (-> flonum? flonum? ))
+              (a real?)
+              (b real?) 
+              (#:epsabs epsabs real? 0)
+              (#:epsrel epsrel real? 1e-8)
+              (#:limit  limit  exact-positive-integer? 1000)
+              (#:key    key    exact-positive-integer? 2)
+              ) (list/c real? real?)]{
+ Same as qag, but raises an exception when error.
+ 
+ When success, returns: @racketblock[ (result abserr)]
+}
+                
+                      
+
 
 
 @defproc[(qags (f (-> flonum? flonum? ))
@@ -120,7 +141,13 @@ First element is status code. Success when code = 0, otherwise error.
               (#:epsrel epsrel real? 1e-8)
               (#:limit  limit  exact-positive-integer? 1000)              
               ) (or/c (list/c integer? real? real?) 
-                      (list/c integer? symbol? string?))]{QAGS adaptive integration with singularities}
+                      (list/c integer? symbol? string?))]{
+QAGS adaptive integration with singularities
+
+The presence of an integrable singularity in the integration region causes an adaptive routine to concentrate new subintervals around the singularity.
+As the subintervals decrease in size the successive approximations to the integral converge in a limiting fashion.
+This approach to the limit can be accelerated using an extrapolation procedure. The QAGS algorithm combines adaptive bisection with the Wynn epsilon-algorithm to speed up the integration of many types of integrable singularities.
+}
 
 
 @defproc[(qagp (f (-> flonum? flonum? ))
