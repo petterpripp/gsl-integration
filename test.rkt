@@ -224,6 +224,19 @@
     (t-qagp (list 0.0 1.0 (sqrt 2.0) 3.0)))
 
    (test-case
+    "QAGP duplicate and non-sorted"
+    (check-equal?
+     (qagp f454 '(4 5 1.0 1 3)  #:epsrel 1e-3)
+     (qagp f454 '(1 3 4 5)     #:epsrel 1e-3)))
+
+   (test-case
+    "qagp = qagp-r"
+    (check-equal?
+     (rest (qagp f454 '( 4 5 1.0 1 3)  #:epsrel 1e-3))
+     (qagp-r f454 '( 4 5 1.0 1 3)  #:epsrel 1e-3)))   
+     
+   
+   (test-case
     "QAGI"
     (t-qagi ))
 

@@ -165,7 +165,23 @@ This approach to the limit can be accelerated using an extrapolation procedure. 
               (#:epsrel epsrel real? 1e-8)
               (#:limit  limit  exact-positive-integer? 1000)              
               ) (or/c (list/c integer? real? real?) 
-                      (list/c integer? symbol? string?))]{QAGP adaptive integration with known singular points}
+                      (list/c integer? symbol? string?))]{
+ QAGP adaptive integration with known singular points
+
+ Dublicates points will removed and the points will be sorted.                                                          
+}
+
+
+@defproc[(qagp-r (f (-> flonum? flonum? ))
+              (pts (listof real?))              
+              (#:epsabs epsabs real? 0)
+              (#:epsrel epsrel real? 1e-8)
+              (#:limit  limit  exact-positive-integer? 1000)              
+              ) (list/c real? real?)]{
+ Same as qagp, but raises an exception when error.
+ 
+ When success, returns: @racketblock[ (result abserr)]
+}
 
 
 @defproc[(qagi (f (-> flonum? flonum? ))
@@ -231,17 +247,10 @@ This approach to the limit can be accelerated using an extrapolation procedure. 
                       (list/c integer? symbol? string?))]{Romberg integration}
 
 @section{Troubleshooting}
-Some linux systems have precompiled package for GNU GSL library. Howeever this package can be of an older version. 
-It is recommended to compile and install GNU GSL library from source.
-Beware that installation directory from source can be different that from precompiled package.
-
 If you get an error that it can not find Romberg, but not error on the other functions: You have and older version of GNU GSL on our system.
 Romberg was added at version 2.5
 
-If you get error:  ffi-lib: couldn't open "libgslcblas.so" (libgslcblas.so: cannot open shared object file: No such file or directory)
 
-Solution: Edit ~/.bashrc
+If you get error:  ffi-lib: couldn't open "libgslcblas.so" (libgslcblas.so: cannot open shared object file: No such file or directory):
+Directory where gls library is installed must to be referenced in our systempath.
 
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-
-export LD_LIBRARY_PATH

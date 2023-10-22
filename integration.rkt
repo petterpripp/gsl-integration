@@ -150,23 +150,36 @@
                              
 
 
-
 ;(gsl gsl_integration_qagp (_fun _gsl_function-pointer _double-pointer _size _double _double _size _gsl_integration_workspace-pointer _double-pointer _double-pointer -> _int))
 (define/contract (qagp f pts #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] #:limit [limit 1000] )
   (->* ((-> flonum? flonum? ) (listof real?) ) (#:epsabs real?  #:epsrel real? #:limit exact-positive-integer? ) (or/c (list/c integer? real? real?) err?))
-  (let ([cb-f (gsl-callback-alloc f)]
-        [w (gsl_integration_workspace_alloc limit)]
-        [result (alloc_double)]    
-        [abserr (alloc_double)]
-        [_pts (make-double_array pts)])
-    (begin     
-      (define status (gsl_integration_qagp cb-f _pts (length pts) (exact->inexact epsabs) (exact->inexact epsrel) limit w result abserr))
-      (define rl
-        (if (= status 0) 
-            (list status (ptr-ref result _double) (ptr-ref abserr _double))
-            (err status)))
-      (gc-free cb-f w result abserr _pts)      
-      rl)))
+  (define w (gsl_integration_workspace_alloc limit))
+  (define result (alloc_double))
+  (define abserr (alloc_double))
+  (define unique-sort-pts (sort (remove-duplicates pts =) <))
+  (define _pts (make-double_array unique-sort-pts))
+  (call-no-raise
+     (gsl_integration_qagp f _pts (length unique-sort-pts) (exact->inexact epsabs) (exact->inexact epsrel) limit w result abserr)
+     ((ptr-ref result _double) (ptr-ref abserr _double))
+     (w result abserr _pts)))
+
+
+; Same as qagp, but raise error
+(define/contract (qagp-r f pts #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] #:limit [limit 1000])
+  (->* ((-> flonum? flonum? ) (listof real?)) (#:epsabs real?  #:epsrel real? #:limit exact-positive-integer?) (list/c real? real?))
+  (define res (qagp f pts #:epsabs epsabs  #:epsrel epsrel #:limit limit))
+  (if (= (first res) 0)
+      (rest res)
+      (raise-arguments-error 'qagp-r
+                             (third res)                             
+                             "gsl_errno_code" (first res)
+                             "gsl_errno_symbol" (second res)
+                             "pts" pts
+                             "epsabs" epsabs
+                             "epsrel" epsrel
+                             "limit" limit)))
+
+
 
 ;(gsl gsl_integration_qagi (_fun _gsl_function-pointer _double _double _size _gsl_integration_workspace-pointer _double-pointer _double-pointer -> _int))
 (define/contract (qagi f #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] #:limit [limit 1000])
@@ -273,6 +286,7 @@
  qags
  qags-r
  qagp
+ qagp-r
  qagi
  qagiu
  qagil
