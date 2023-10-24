@@ -183,19 +183,30 @@
 
 ;(gsl gsl_integration_qagi (_fun _gsl_function-pointer _double _double _size _gsl_integration_workspace-pointer _double-pointer _double-pointer -> _int))
 (define/contract (qagi f #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] #:limit [limit 1000])
-  (->* ((-> flonum? flonum? )) (#:epsabs real?  #:epsrel real? #:limit exact-positive-integer? ) (or/c (list/c integer? real? real?) err?))
-  (let ([cb-f (gsl-callback-alloc f)]
-        [w (gsl_integration_workspace_alloc limit)]
-        [result (alloc_double)]    
-        [abserr (alloc_double)])        
-    (begin     
-      (define status (gsl_integration_qagi cb-f (exact->inexact epsabs) (exact->inexact epsrel) limit w result abserr))
-      (define rl
-        (if (= status 0) 
-            (list status (ptr-ref result _double) (ptr-ref abserr _double))
-            (err status)))
-      (gc-free cb-f w result abserr)      
-      rl)))
+  (->* ((-> flonum? flonum? )) (#:epsabs real?  #:epsrel real? #:limit exact-positive-integer? ) (or/c (list/c integer? real? real?) err?))  
+  (define w (gsl_integration_workspace_alloc limit))
+  (define result (alloc_double))
+  (define abserr (alloc_double))
+  (call-no-raise
+     (gsl_integration_qagi f (exact->inexact epsabs) (exact->inexact epsrel) limit w result abserr)
+     ((ptr-ref result _double) (ptr-ref abserr _double))
+     (w result abserr )))
+  
+
+(define/contract (qagi-r f #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] #:limit [limit 1000])
+  (->* ((-> flonum? flonum? )) (#:epsabs real?  #:epsrel real? #:limit exact-positive-integer? ) (list/c real? real?))
+  (define res (qagi f #:epsabs epsabs #:epsrel epsrel #:limit limit ))
+  (if (= (first res) 0)
+      (rest res)
+      (raise-arguments-error 'qagi-r
+                             (third res)                             
+                             "gsl_errno_code" (first res)
+                             "gsl_errno_symbol" (second res)
+                             "epsabs" epsabs
+                             "epsrel" epsrel
+                             "limit" limit)))  
+  
+
 
 ;(gsl gsl_integration_qagiu (_fun _gsl_function-pointer _double _double _double _size _gsl_integration_workspace-pointer _double-pointer _double-pointer -> _int))
 (define/contract (qagiu f a #:epsabs [epsabs 0] #:epsrel [epsrel 1e-8] #:limit [limit 1000])
@@ -288,6 +299,7 @@
  qagp
  qagp-r
  qagi
+ qagi-r
  qagiu
  qagil
  qawc

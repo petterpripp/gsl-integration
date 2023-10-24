@@ -48,7 +48,7 @@ The source code is distributed under the GNU General Public License.
 ;exact result    = -4.0
 ;result          = -4.000000000000085
 ;estimated error = 1.354472090042691e-13
-;actual error    = -8.526512829121202e-1
+;actual error    = -8.526512829121202e-14
 )
 
 For more examples look at test.rkt source file.
@@ -191,6 +191,16 @@ This approach to the limit can be accelerated using an extrapolation procedure. 
               ) (or/c (list/c integer? real? real?) 
                       (list/c integer? symbol? string?))]{
  QAGI adaptive integration on infinite interval @($"(-\\infty,+\\infty)") }
+
+
+@defproc[(qagi-r (f (-> flonum? flonum? ))
+              (#:epsabs epsabs real? 0)
+              (#:epsrel epsrel real? 1e-8)
+              (#:limit  limit  exact-positive-integer? 1000)              
+              ) (list/c real? real?) ]{                      
+ Same as qagi, but raises an exception when error.
+ 
+ When success, returns: @racketblock[ (result abserr)]}
 
 
 @defproc[(qagiu (f (-> flonum? flonum? ))

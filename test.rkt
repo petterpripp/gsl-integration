@@ -241,6 +241,13 @@
     (t-qagi ))
 
    (test-case
+    "qagi = qagi-r"
+    (check-equal?
+     (rest (qagi myfn1 #:epsabs 1e-7 #:epsrel 0))
+     (qagi-r myfn1 #:epsabs 1e-7 #:epsrel 0)))
+
+
+   (test-case
     "QAGIU"
     (t-qagiu 0.0 ))
 
