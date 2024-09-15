@@ -7,8 +7,8 @@
          racket/format)
 
 
-(define-ffi-definer gslcblas (ffi-lib "libgslcblas" #:global? #t))
-(define-ffi-definer gsl (ffi-lib "libgsl"  #:global? #t))
+(define-ffi-definer gslcblas (ffi-lib "libgslcblas" '("0" #f) #:global? #t))
+(define-ffi-definer gsl (ffi-lib "libgsl" '("27" #f)  #:global? #t))
 ;(define-ffi-definer gslwrap (ffi-lib "./wrap/libgslwrap" #:global? #t))
 
 
