@@ -12,7 +12,8 @@ Interface to GNU GSL Numerical Integration.
 
 Library hides memory allocation and other low level C stuff.
 
-GNU GSL has to be installed separately.
+GNU GSL has to be installed separately. Development version of gsl is preferred.
+In Ubuntu the package is: libgsl-dev.
 
 Naming of functions and keywords follow GNU GSL documentation
 @url{https://www.gnu.org/software/gsl/doc/html/integration.html}
