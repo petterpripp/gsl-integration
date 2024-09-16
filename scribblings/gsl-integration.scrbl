@@ -257,10 +257,42 @@ This approach to the limit can be accelerated using an extrapolation procedure. 
                       (list/c integer? symbol? string?))]{Romberg integration}
 
 @section{Troubleshooting}
+
+@subsection{Romberg}
 If you get an error that it can not find Romberg, but not error on the other functions: You have and older version of GNU GSL on our system.
 Romberg was added at version 2.5
 
-
+@subsection{ffi-lib: couldn't open ...}
 If you get error:  ffi-lib: couldn't open "libgslcblas.so" (libgslcblas.so: cannot open shared object file: No such file or directory):
-Directory where gls library is installed must to be referenced in our systempath.
 
+
+
+Solution 1: Install development version of gsl. In Ubuntu the package is: libgsl-dev.
+
+Solution 2: Modify source code in wrap.rkt with version number.
+This apply if you have installed package with version number. Example: libgsl27
+
+@racketblock[ 
+(define-ffi-definer gslcblas (ffi-lib "libgslcblas" #:global? #t))
+(define-ffi-definer gsl (ffi-lib "libgsl"  #:global? #t))
+]
+
+Modify this to
+
+@racketblock[ 
+(define-ffi-definer gslcblas (ffi-lib "libgslcblas" '("0" #f) #:global? #t))
+(define-ffi-definer gsl (ffi-lib "libgsl" '("27" #f)  #:global? #t))
+]
+
+
+Solution 3: Specify absolute path in wrap.rkt without .so extension (package location may differ).
+
+@racketblock[ 
+ (define-ffi-definer gsl (ffi-lib "/usr/lib/x86_64-linux-gnu/libgslcblas"  #:global? #t))
+ (define-ffi-definer gslcblas (ffi-lib "/usr/lib/x86_64-linux-gnu/libgsl" #:global? #t))
+]
+
+
+@subsection{DrRacket freeze/crash}
+The function f should not raise error. C-library do not work with Racket exception's.
+Try run at command line to see what exception is raised.
