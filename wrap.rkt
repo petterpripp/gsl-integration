@@ -6,10 +6,17 @@
          racket/list
          racket/format)
 
+  
+;Ubuntu/Debian: This will work with libgsl-dev
+(define-ffi-definer gslcblas (ffi-lib "libgslcblas" #:global? #t))
+(define-ffi-definer gsl (ffi-lib "libgsl"  #:global? #t))
 
-(define-ffi-definer gslcblas (ffi-lib "libgslcblas" '("0" #f) #:global? #t))
-(define-ffi-definer gsl (ffi-lib "libgsl" '("27" #f)  #:global? #t))
-;(define-ffi-definer gslwrap (ffi-lib "./wrap/libgslwrap" #:global? #t))
+
+;Reference: jbclements:add-ffi-lib-version-numbers
+;Ubuntu/Debian: This will work with libgsl27
+;(define-ffi-definer gslcblas (ffi-lib "libgslcblas" '("0" #f) #:global? #t))
+;(define-ffi-definer gsl (ffi-lib "libgsl" '("27" #f)  #:global? #t))
+
 
 
 ; Turns off default gsl error handler, preventing unwanted abort of program and freeze of DrRacket.
@@ -96,7 +103,7 @@
  gsl_integration_qag 
  gsl_integration_qags
  gsl_integration_qagp 
- gsl gsl_integration_qagi
+ gsl_integration_qagi
  gsl_integration_qagiu
  gsl_integration_qagil
  gsl_integration_qawc
