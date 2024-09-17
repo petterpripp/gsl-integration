@@ -295,5 +295,5 @@ Solution 3: Specify absolute path in wrap.rkt without .so extension (package loc
 
 
 @subsection{DrRacket freeze/crash}
-The function f should not raise error. C-library do not work with Racket exception's.
+C/C++ exception's do not mix well with Racket exception's.
 Try run at command line to see what exception is raised.
